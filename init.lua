@@ -18,6 +18,7 @@ end)
 -- Treesitter
 require'nvim-treesitter.configs'.setup {
   ensure_installed = { "python" },
+  auto_install = true,
   highlight = { enable = true },
 }
 
@@ -50,6 +51,7 @@ require('telescope').setup{}
 -- Клавіші
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>ff', ':Telescope find_files<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>r', ':w<CR>:!python %<CR>', { noremap = true, silent = true })
 
 -- Pyright через новий API
 vim.lsp.config.pyright = {
@@ -65,10 +67,13 @@ vim.lsp.config.pyright = {
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "python",
   callback = function()
-    vim.lsp.start({
-      name = "pyright",
-      cmd = vim.lsp.config.pyright.default_config.cmd,
-      root_dir = vim.lsp.config.pyright.default_config.root_dir,
-    })
+    local clients = vim.lsp.get_clients({ name = "pyright" })
+    if #clients == 0 then
+      vim.lsp.start({
+        name = "pyright",
+        cmd = vim.lsp.config.pyright.default_config.cmd,
+        root_dir = vim.lsp.config.pyright.default_config.root_dir,
+      })
+    end
   end,
 })
