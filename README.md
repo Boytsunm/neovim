@@ -9,7 +9,7 @@
 ### 1. Клонувати репозиторій
 
 ```bash
-git clone https://github.com/Boytsunm/neowim ~/.config/nvim
+git clone https://github.com/Boytsunm/neovim ~/.config/nvim
 ```
 
 ### 2. Встановити `packer.nvim`
