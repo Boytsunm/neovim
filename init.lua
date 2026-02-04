@@ -63,17 +63,22 @@ vim.lsp.config.pyright = {
   }
 }
 
--- Автозапуск LSP для Python
+-- Автозапуск LSP для Python (Pyright + Ruff)
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "python",
   callback = function()
-    local clients = vim.lsp.get_clients({ name = "pyright" })
-    if #clients == 0 then
-      vim.lsp.start({
-        name = "pyright",
-        cmd = vim.lsp.config.pyright.default_config.cmd,
-        root_dir = vim.lsp.config.pyright.default_config.root_dir,
-      })
-    end
+    -- Запуск Pyright
+    vim.lsp.start({
+      name = "pyright",
+      cmd = { "pyright-langserver", "--stdio" },
+      root_dir = vim.fn.getcwd(),
+    })
+    
+    -- Запуск Ruff (замість старого ruff-lsp)
+    vim.lsp.start({
+      name = "ruff",
+      cmd = { "ruff", "server" },
+      root_dir = vim.fn.getcwd(),
+    })
   end,
 })
