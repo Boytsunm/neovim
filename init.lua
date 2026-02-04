@@ -1,7 +1,7 @@
 -- Лідер-клавіша
 vim.g.mapleader = " "
 
--- Ініціалізація packer
+-- 1. Ініціалізація Packer
 require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
   use 'neovim/nvim-lspconfig'
@@ -15,70 +15,57 @@ require('packer').startup(function(use)
   use 'nvim-telescope/telescope.nvim'
 end)
 
--- Treesitter
+-- 2. Treesitter (Покращена підсвітка)
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = { "python" },
-  auto_install = true,
+  ensure_installed = { "python", "lua", "bash" },
   highlight = { enable = true },
 }
 
--- Автодоповнення
+-- 3. Налаштування LSP (замість твоїх ручних autocmd)
+local lspconfig = require('lspconfig')
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+-- Налаштовуємо Pyright (логіка)
+lspconfig.pyright.setup{
+  capabilities = capabilities,
+}
+
+-- Налаштовуємо Ruff (лінтер і швидкий форматер)
+lspconfig.ruff.setup{
+  capabilities = capabilities,
+}
+
+-- 4. Автодоповнення (cmp)
 local cmp = require'cmp'
 cmp.setup({
   mapping = cmp.mapping.preset.insert({
     ['<C-Space>'] = cmp.mapping.complete(),
     ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    ['<Tab>'] = cmp.mapping.select_next_item(),
+    ['<S-Tab>'] = cmp.mapping.select_prev_item(),
   }),
   sources = {
     { name = 'nvim_lsp' },
   },
 })
 
--- Nvim-tree
+-- 5. Nvim-tree
 require("nvim-tree").setup({
-  view = {
-    width = 30,
-    side = "left",
-  },
-  filters = {
-    dotfiles = false,
-  },
+  view = { width = 30 },
+  renderer = { group_empty = true },
+  filters = { dotfiles = false },
 })
 
--- Telescope
+-- 6. Telescope
 require('telescope').setup{}
 
--- Клавіші
-vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
-vim.keymap.set('n', '<leader>ff', ':Telescope find_files<CR>', { noremap = true, silent = true })
-vim.keymap.set('n', '<leader>r', ':w<CR>:!python %<CR>', { noremap = true, silent = true })
+-- 7. Клавіші (Hotkeys)
+local key = vim.keymap.set
+key('n', '<leader>e', ':NvimTreeToggle<CR>', { silent = true })
+key('n', '<leader>ff', ':Telescope find_files<CR>', { silent = true })
+key('n', '<leader>r', ':w<CR>:!python %<CR>', { silent = true })
 
--- Pyright через новий API
-vim.lsp.config.pyright = {
-  default_config = {
-    cmd = { "pyright-langserver", "--stdio" },
-    filetypes = { "python" },
-    root_dir = vim.fn.getcwd(),
-    settings = {},
-  }
-}
-
--- Автозапуск LSP для Python (Pyright + Ruff)
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "python",
-  callback = function()
-    -- Запуск Pyright
-    vim.lsp.start({
-      name = "pyright",
-      cmd = { "pyright-langserver", "--stdio" },
-      root_dir = vim.fn.getcwd(),
-    })
-    
-    -- Запуск Ruff (замість старого ruff-lsp)
-    vim.lsp.start({
-      name = "ruff",
-      cmd = { "ruff", "server" },
-      root_dir = vim.fn.getcwd(),
-    })
-  end,
-})
+-- Додамо корисні LSP-хоткеї
+key('n', 'gd', vim.lsp.buf.definition)      -- Перейти до визначення
+key('n', 'K', vim.lsp.buf.hover)           -- Документація при наведенні
+key('n', '<leader>ca', vim.lsp.buf.code_action) -- Швидкі виправлення (Ruff їх обожнює)
