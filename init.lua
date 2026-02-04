@@ -21,7 +21,7 @@ require'nvim-treesitter.configs'.setup {
   highlight = { enable = true },
 }
 
--- 3. Налаштування LSP (замість твоїх ручних autocmd)
+-- 3. Налаштування LSP
 local lspconfig = require('lspconfig')
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
@@ -68,4 +68,4 @@ key('n', '<leader>r', ':w<CR>:!python %<CR>', { silent = true })
 -- Додамо корисні LSP-хоткеї
 key('n', 'gd', vim.lsp.buf.definition)      -- Перейти до визначення
 key('n', 'K', vim.lsp.buf.hover)           -- Документація при наведенні
-key('n', '<leader>ca', vim.lsp.buf.code_action) -- Швидкі виправлення (Ruff їх обожнює)
+key('n', '<leader>ca', vim.lsp.buf.code_action) -- Швидкі виправлення
